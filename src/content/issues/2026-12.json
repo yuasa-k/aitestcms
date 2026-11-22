@@ -1,0 +1,46 @@
+{
+  "id": "2026-12",
+  "title": "冬の贈りもの",
+  "description": "MAISON VELISSE 12月号。大切な人へ贈る、冬の限定コレクション。",
+  "publishAt": "2026-12-01T10:00:00+09:00",
+  "blocks": [
+    {
+      "type": "hero",
+      "video": "hero.mp4",
+      "poster": "hero.jpg",
+      "posterAlt": "白から淡い銀色へと移る、雪のような映像",
+      "title": "冬の贈りもの",
+      "subtitle": "Holiday Collection"
+    },
+    { "type": "heading", "text": "贈ることの喜び", "level": 2 },
+    {
+      "type": "text",
+      "paragraphs": [
+        "一年の終わりに、ありがとうの気持ちをかたちにして。",
+        "冬の限定コレクションは、贈る人と贈られる人、どちらの心にも残るものを目指しました。"
+      ]
+    },
+    {
+      "type": "section",
+      "background": { "kind": "video", "src": "snow.mp4", "poster": "snow.jpg" },
+      "parallax": false,
+      "children": [
+        { "type": "heading", "text": "限定のギフトボックス", "level": 3 },
+        { "type": "text", "paragraphs": ["12月だけの特別なパッケージでお届けします。"] }
+      ]
+    },
+    {
+      "type": "reveal",
+      "effect": "slide-left",
+      "children": [
+        {
+          "type": "image",
+          "src": "gift.jpg",
+          "alt": "銀色から白へと移るグラデーション",
+          "width": "contained"
+        },
+        { "type": "button", "label": "ギフトを選ぶ", "href": "/issues/2026-12/", "variant": "primary" }
+      ]
+    }
+  ]
+}

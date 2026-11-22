@@ -1,0 +1,21 @@
+# build
+dist/
+.astro/
+.wrangler/
+
+# deps
+node_modules/
+
+# env（秘密情報はリポジトリに置かない）
+.env
+.env.*
+.dev.vars*
+
+# Claude Code の個人設定
+.claude/settings.local.json
+
+# logs
+npm-debug.log*
+
+# OS
+.DS_Store

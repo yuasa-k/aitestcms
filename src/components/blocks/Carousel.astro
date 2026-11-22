@@ -1,0 +1,193 @@
+---
+// カルーセル。横スクロール（スナップ）を土台にして、JSなしでもスワイプで見られる。
+// JSが動くと「前へ・次へ」ボタンと枚数表示が出る。スクリプトはこの部品を使うページにだけ載る。
+import { Picture } from 'astro:assets';
+import { loadIssueImage, responsiveWidths } from '../../lib/media';
+
+interface Props {
+  issueId: string;
+  items: { src: string; alt: string; caption?: string }[];
+}
+
+const { issueId, items } = Astro.props;
+const slides = await Promise.all(
+  items.map(async (item) => ({ ...item, image: await loadIssueImage(issueId, item.src) })),
+);
+const total = slides.length;
+---
+
+<section class="carousel" aria-roledescription="カルーセル" aria-label="画像" data-carousel>
+  <ul class="carousel__track" tabindex="0" data-carousel-track>
+    {
+      slides.map((slide, i) => (
+        <li
+          class="carousel__slide"
+          role="group"
+          aria-roledescription="スライド"
+          aria-label={`${i + 1} / ${total}`}
+        >
+          <figure class="carousel__figure">
+            <Picture
+              src={slide.image}
+              alt={slide.alt}
+              formats={['avif', 'webp']}
+              widths={responsiveWidths([480, 800, 1200], slide.image.width)}
+              sizes="(min-width: 48rem) 26rem, 80vw"
+              loading="lazy"
+              decoding="async"
+              class="carousel__img"
+            />
+            {slide.caption && <figcaption class="carousel__caption">{slide.caption}</figcaption>}
+          </figure>
+        </li>
+      ))
+    }
+  </ul>
+  <div class="carousel__controls" data-carousel-controls hidden>
+    <button type="button" class="carousel__button" data-carousel-prev aria-label="前の画像">
+      <span aria-hidden="true">←</span>
+    </button>
+    <p class="carousel__status" aria-live="polite"><span data-carousel-current>1</span> / {total}</p>
+    <button type="button" class="carousel__button" data-carousel-next aria-label="次の画像">
+      <span aria-hidden="true">→</span>
+    </button>
+  </div>
+</section>
+
+<style>
+  .carousel {
+    max-width: var(--wide-width);
+    margin: var(--space-4) auto;
+  }
+  .carousel__track {
+    position: relative;
+    display: flex;
+    gap: var(--space-2);
+    margin: 0;
+    padding: 0 var(--gutter);
+    overflow-x: auto;
+    list-style: none;
+    scroll-snap-type: x mandatory;
+    scroll-padding-inline: var(--gutter);
+    scroll-behavior: smooth;
+    scrollbar-width: none;
+    overscroll-behavior-x: contain;
+  }
+  .carousel__track::-webkit-scrollbar {
+    display: none;
+  }
+  .carousel__slide {
+    flex: 0 0 80%;
+    scroll-snap-align: start;
+  }
+  @media (min-width: 48rem) {
+    .carousel__slide {
+      flex-basis: 26rem;
+    }
+  }
+  .carousel__figure {
+    margin: 0;
+  }
+  .carousel :global(.carousel__img) {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 4 / 5;
+    object-fit: cover;
+  }
+  .carousel__caption {
+    margin-top: var(--space-1);
+    color: var(--color-text-muted);
+    font-size: var(--text-xs);
+    letter-spacing: var(--tracking-wide);
+  }
+  .carousel__controls {
+    display: flex;
+    gap: var(--space-3);
+    align-items: center;
+    justify-content: center;
+    margin-top: var(--space-2);
+  }
+  .carousel__controls[hidden] {
+    display: none;
+  }
+  .carousel__button {
+    width: 2.75rem;
+    height: 2.75rem;
+    border: 1px solid var(--color-line);
+    border-radius: 50%;
+    background: transparent;
+    color: var(--color-text);
+    cursor: pointer;
+  }
+  .carousel__button:disabled {
+    opacity: 0.3;
+    cursor: default;
+  }
+  .carousel__status {
+    margin: 0;
+    min-width: 4rem;
+    color: var(--color-text-muted);
+    font-size: var(--text-xs);
+    letter-spacing: var(--tracking-wide);
+    text-align: center;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .carousel__track {
+      scroll-behavior: auto;
+    }
+  }
+</style>
+
+<script>
+  function setup(root: HTMLElement) {
+    const track = root.querySelector<HTMLElement>('[data-carousel-track]');
+    const controls = root.querySelector<HTMLElement>('[data-carousel-controls]');
+    const prev = root.querySelector<HTMLButtonElement>('[data-carousel-prev]');
+    const next = root.querySelector<HTMLButtonElement>('[data-carousel-next]');
+    const current = root.querySelector<HTMLElement>('[data-carousel-current]');
+    if (!track || !controls || !prev || !next || !current) return;
+    const slides = Array.from(track.children) as HTMLElement[];
+
+    // 各スライドの、トラック内での位置（1枚目を0とする）
+    const pos = (s: HTMLElement) => s.offsetLeft - slides[0].offsetLeft;
+
+    const indexNow = () => {
+      const left = track.scrollLeft;
+      let best = 0;
+      slides.forEach((s, i) => {
+        if (Math.abs(pos(s) - left) < Math.abs(pos(slides[best]) - left)) best = i;
+      });
+      return best;
+    };
+
+    const update = () => {
+      const i = indexNow();
+      const atEnd = track.scrollLeft + track.clientWidth >= track.scrollWidth - 2;
+      current.textContent = String(atEnd ? slides.length : i + 1);
+      prev.disabled = track.scrollLeft <= 2;
+      next.disabled = atEnd;
+    };
+
+    const go = (delta: number) => {
+      const target = slides[Math.min(Math.max(indexNow() + delta, 0), slides.length - 1)];
+      track.scrollTo({ left: pos(target) });
+    };
+
+    prev.addEventListener('click', () => go(-1));
+    next.addEventListener('click', () => go(1));
+    let raf = 0;
+    track.addEventListener(
+      'scroll',
+      () => {
+        cancelAnimationFrame(raf);
+        raf = requestAnimationFrame(update);
+      },
+      { passive: true },
+    );
+    window.addEventListener('resize', update);
+    controls.hidden = false;
+    update();
+  }
+
+  document.querySelectorAll<HTMLElement>('[data-carousel]').forEach(setup);
+</script>

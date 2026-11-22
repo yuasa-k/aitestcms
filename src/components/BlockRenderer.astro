@@ -1,0 +1,56 @@
+---
+// ブロックの配列を、type に応じた部品で描画する
+import type { Block } from '../lib/schema';
+import Hero from './blocks/Hero.astro';
+import Heading from './blocks/Heading.astro';
+import Text from './blocks/Text.astro';
+import ImageBlock from './blocks/ImageBlock.astro';
+import Button from './blocks/Button.astro';
+import Carousel from './blocks/Carousel.astro';
+import Section from './blocks/Section.astro';
+import Reveal from './blocks/Reveal.astro';
+
+interface Props {
+  blocks: readonly Block[];
+  issueId: string;
+}
+
+const { blocks, issueId } = Astro.props;
+
+function assertNever(x: never): never {
+  throw new Error(`未対応のブロックです: ${JSON.stringify(x)}`);
+}
+---
+
+{
+  blocks.map((block) => {
+    switch (block.type) {
+      case 'hero':
+        return <Hero issueId={issueId} {...block} />;
+      case 'heading':
+        return <Heading {...block} />;
+      case 'text':
+        return <Text {...block} />;
+      case 'image':
+        return <ImageBlock issueId={issueId} {...block} />;
+      case 'button':
+        return <Button {...block} />;
+      case 'carousel':
+        return <Carousel issueId={issueId} items={block.items} />;
+      case 'section':
+        return (
+          <Section issueId={issueId} background={block.background} parallax={block.parallax}>
+            <Astro.self blocks={block.children} issueId={issueId} />
+          </Section>
+        );
+      case 'reveal':
+        return (
+          <Reveal effect={block.effect}>
+            <Astro.self blocks={block.children} issueId={issueId} />
+          </Reveal>
+        );
+      default:
+        return assertNever(block);
+    }
+  })
+}

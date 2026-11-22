@@ -1,0 +1,21 @@
+{
+  "id": "future",
+  "title": "テスト用・未公開",
+  "description": "ビルドのテスト用の号（公開日時前）",
+  "publishAt": "2099-01-01T10:00:00+09:00",
+  "blocks": [
+    {
+      "type": "hero",
+      "video": "future-hero.mp4",
+      "poster": "future-only-hero.jpg",
+      "posterAlt": "テスト用の画像",
+      "title": "MARKER-FUTURE"
+    },
+    {
+      "type": "section",
+      "background": { "kind": "video", "src": "future-bg.mp4", "poster": "future-only-bg.jpg" },
+      "children": [{ "type": "text", "paragraphs": ["MARKER-FUTURE-SECTION"] }]
+    },
+    { "type": "image", "src": "future-only-image.jpg", "alt": "テスト用の画像" }
+  ]
+}

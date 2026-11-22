@@ -1,0 +1,88 @@
+---
+// 背景画像／背景動画セクション。背景の上に、見出し・本文・ボタン（slot）を重ねる。
+// parallax: true のときだけ、パララックスのスクリプトを読み込む。
+import { Picture } from 'astro:assets';
+import { issueVideoUrl, loadIssueImage, responsiveWidths } from '../../lib/media';
+import BackgroundVideo from '../media/BackgroundVideo.astro';
+import VideoToggle from '../media/VideoToggle.astro';
+import ParallaxScript from '../media/ParallaxScript.astro';
+
+type Background = { kind: 'image'; src: string } | { kind: 'video'; src: string; poster: string };
+
+interface Props {
+  issueId: string;
+  background: Background;
+  parallax: boolean;
+}
+
+const { issueId, background, parallax } = Astro.props;
+const isVideo = background.kind === 'video';
+const image = await loadIssueImage(issueId, isVideo ? background.poster : background.src);
+---
+
+<section
+  class:list={['section', { 'section--parallax': parallax }]}
+  data-parallax={parallax ? '' : undefined}
+  data-lazy-video={isVideo ? '' : undefined}
+>
+  <div class="section__bg">
+    <Picture
+      src={image}
+      alt=""
+      formats={['avif', 'webp']}
+      widths={responsiveWidths([640, 960, 1280, 1920], image.width)}
+      sizes="100vw"
+      loading="lazy"
+      decoding="async"
+      class="section__img"
+    />
+    {isVideo && <BackgroundVideo src={issueVideoUrl(issueId, background.src)} />}
+  </div>
+  <div class="section__content">
+    <slot />
+  </div>
+  {isVideo && <VideoToggle />}
+</section>
+{parallax && <ParallaxScript />}
+
+<style>
+  .section {
+    position: relative;
+    display: grid;
+    align-items: center;
+    min-height: 80svh;
+    margin: var(--space-5) 0;
+    overflow: hidden;
+    isolation: isolate;
+  }
+  .section__bg {
+    position: absolute;
+    inset: 0;
+    z-index: -2;
+  }
+  /* パララックス：背景の層を上下に少し大きくして、その範囲で動かす */
+  .section--parallax .section__bg {
+    inset: -12% 0;
+    transform: translate3d(0, var(--parallax-y, 0), 0);
+    will-change: transform;
+  }
+  .section__bg :global(.section__img) {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .section::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background: var(--color-overlay);
+  }
+  .section__content {
+    padding: var(--space-5) 0;
+    text-align: center;
+  }
+  .section__content :global(.text) {
+    color: var(--color-text);
+  }
+</style>

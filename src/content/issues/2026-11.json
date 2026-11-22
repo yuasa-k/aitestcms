@@ -1,0 +1,48 @@
+{
+  "id": "2026-11",
+  "title": "夜のはじまり",
+  "description": "MAISON VELISSE 11月号。夜の訪れとともに輝く、新しいジュエリーの物語。",
+  "publishAt": "2026-11-01T10:00:00+09:00",
+  "blocks": [
+    {
+      "type": "hero",
+      "video": "hero.mp4",
+      "poster": "hero.jpg",
+      "posterAlt": "濃紺から黒へと移る夜空のような映像",
+      "title": "夜のはじまり",
+      "subtitle": "Evening Jewelry"
+    },
+    {
+      "type": "reveal",
+      "effect": "fade-up",
+      "children": [
+        { "type": "heading", "text": "ひとしずくの光", "level": 2 },
+        {
+          "type": "text",
+          "paragraphs": [
+            "日が落ちて、街の灯りがともりはじめる時間。",
+            "肌の上で小さく瞬く光が、夜の装いを静かに完成させます。"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "carousel",
+      "items": [
+        { "src": "item-01.jpg", "alt": "濃紺の背景に浮かぶ金色の円", "caption": "Ring" },
+        { "src": "item-02.jpg", "alt": "黒の背景に浮かぶ銀色の円", "caption": "Earrings" },
+        { "src": "item-03.jpg", "alt": "深い紫の背景に浮かぶ金色の円", "caption": "Necklace" }
+      ]
+    },
+    {
+      "type": "section",
+      "background": { "kind": "image", "src": "night.jpg" },
+      "parallax": true,
+      "children": [
+        { "type": "heading", "text": "夜を纏う", "level": 2 },
+        { "type": "text", "paragraphs": ["光と影のあいだに、あなただけの時間を。"] },
+        { "type": "button", "label": "ブティックを探す", "href": "/", "variant": "primary" }
+      ]
+    }
+  ]
+}

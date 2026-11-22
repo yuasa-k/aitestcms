@@ -1,0 +1,23 @@
+---
+// `/issues/<号ID>/`：過去の号。本番では公開日時前の号のページは作らない（404になる）
+import type { GetStaticPaths } from 'astro';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import IssueView from '../../components/IssueView.astro';
+import { getIncludedIssues } from '../../lib/content';
+import type { IssueData } from '../../lib/schema';
+
+export const getStaticPaths = (async () => {
+  const issues = await getIncludedIssues();
+  return issues.map((issue) => ({ params: { id: issue.id }, props: { issue } }));
+}) satisfies GetStaticPaths;
+
+interface Props {
+  issue: IssueData;
+}
+
+const { issue } = Astro.props;
+---
+
+<BaseLayout title={issue.title} description={issue.description}>
+  <IssueView issue={issue} />
+</BaseLayout>

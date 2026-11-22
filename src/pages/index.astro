@@ -1,0 +1,35 @@
+---
+// `/`：このビルドに含めた号のうち最新のもの
+// - 本番：公開日時を過ぎた号のうち最新
+// - プレビュー：公開日時前の号も含めて最新（公開後の見え方を確認するため）
+import BaseLayout from '../layouts/BaseLayout.astro';
+import IssueView from '../components/IssueView.astro';
+import { getLatestIssue } from '../lib/content';
+
+const issue = await getLatestIssue();
+---
+
+{
+  issue ? (
+    <BaseLayout title={issue.title} description={issue.description}>
+      <IssueView issue={issue} />
+    </BaseLayout>
+  ) : (
+    <BaseLayout title="準備中">
+      <section class="empty">
+        <p>公開中の号はまだありません。</p>
+      </section>
+    </BaseLayout>
+  )
+}
+
+<style>
+  .empty {
+    display: grid;
+    place-content: center;
+    min-height: 100svh;
+    padding: var(--gutter);
+    color: var(--color-text-muted);
+    text-align: center;
+  }
+</style>

@@ -1,0 +1,10 @@
+{
+  "id": "past-b",
+  "title": "テスト用・公開済みB",
+  "description": "ビルドのテスト用の号（公開済み・新しいほう）",
+  "publishAt": "2000-02-01T10:00:00+09:00",
+  "blocks": [
+    { "type": "heading", "text": "MARKER-PAST-B" },
+    { "type": "image", "src": "past-b.jpg", "alt": "テスト用の画像" }
+  ]
+}

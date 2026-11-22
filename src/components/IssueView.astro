@@ -1,0 +1,55 @@
+---
+// 1号分のページ本体。`/` と `/issues/<号ID>/` で共通
+import type { IssueData } from '../lib/schema';
+import { isPreview } from '../lib/build-mode';
+import { isPublished } from '../lib/issues';
+import { getBuildTime } from '../lib/content';
+import BlockRenderer from './BlockRenderer.astro';
+
+interface Props {
+  issue: IssueData;
+}
+
+const { issue } = Astro.props;
+// 先頭がヒーローなら、ヒーローの見出しをページのh1にする
+const hasHero = issue.blocks[0]?.type === 'hero';
+const unpublished = isPreview() && !isPublished(issue, getBuildTime());
+const publishLabel = new Intl.DateTimeFormat('ja-JP', {
+  dateStyle: 'long',
+  timeStyle: 'short',
+  timeZone: 'Asia/Tokyo',
+}).format(issue.publishAt);
+---
+
+<article class:list={['issue', { 'issue--no-hero': !hasHero }]} data-issue-id={issue.id}>
+  {!hasHero && <h1 class="visually-hidden">{issue.title}</h1>}
+  <BlockRenderer blocks={issue.blocks} issueId={issue.id} />
+  {
+    unpublished && (
+      <p class="issue__notice" role="note">
+        未公開の号です（公開日時：{publishLabel}）
+      </p>
+    )
+  }
+</article>
+
+<style>
+  .issue {
+    padding-bottom: var(--space-6);
+  }
+  .issue--no-hero {
+    padding-top: var(--space-6);
+  }
+  .issue__notice {
+    position: fixed;
+    left: var(--space-2);
+    bottom: var(--space-2);
+    z-index: 50;
+    margin: 0;
+    padding: var(--space-1) var(--space-2);
+    border: 1px solid var(--color-accent);
+    background: var(--color-bg);
+    color: var(--color-accent);
+    font-size: var(--text-xs);
+  }
+</style>

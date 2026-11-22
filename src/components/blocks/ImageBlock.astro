@@ -1,0 +1,59 @@
+---
+// 画像。ビルド時にAVIF・WebPの複数サイズを作り、画面幅に合ったものを読み込ませる
+import { Picture } from 'astro:assets';
+import { loadIssueImage, responsiveWidths } from '../../lib/media';
+
+interface Props {
+  issueId: string;
+  src: string;
+  alt: string;
+  caption?: string;
+  width: 'full' | 'contained';
+}
+
+const { issueId, src, alt, caption, width } = Astro.props;
+const image = await loadIssueImage(issueId, src);
+const sizes = width === 'full' ? '100vw' : '(min-width: 48rem) 40rem, 100vw';
+---
+
+<figure class:list={['image', `image--${width}`]}>
+  <Picture
+    src={image}
+    alt={alt}
+    formats={['avif', 'webp']}
+    widths={responsiveWidths([480, 800, 1200, 1600], image.width)}
+    sizes={sizes}
+    loading="lazy"
+    decoding="async"
+    class="image__img"
+  />
+  {caption && <figcaption class="image__caption">{caption}</figcaption>}
+</figure>
+
+<style>
+  .image {
+    margin: var(--space-4) auto;
+  }
+  .image--contained {
+    max-width: var(--content-width);
+    padding-inline: var(--gutter);
+  }
+  .image--full {
+    max-width: none;
+  }
+  .image :global(.image__img) {
+    width: 100%;
+    height: auto;
+  }
+  .image__caption {
+    margin-top: var(--space-1);
+    padding-inline: var(--gutter);
+    color: var(--color-text-muted);
+    font-size: var(--text-xs);
+    letter-spacing: var(--tracking-wide);
+    text-align: center;
+  }
+  .image--contained .image__caption {
+    padding-inline: 0;
+  }
+</style>

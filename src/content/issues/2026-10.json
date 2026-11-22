@@ -1,0 +1,37 @@
+{
+  "id": "2026-10",
+  "title": "秋の静けさ",
+  "description": "MAISON VELISSE 10月号。深まる秋に寄り添う、静かな手仕事の物語。",
+  "publishAt": "2026-10-01T10:00:00+09:00",
+  "blocks": [
+    {
+      "type": "hero",
+      "video": "hero.mp4",
+      "poster": "hero.jpg",
+      "posterAlt": "琥珀色の光がゆっくりと揺れる抽象的な映像",
+      "title": "秋の静けさ",
+      "subtitle": "Autumn Collection"
+    },
+    { "type": "heading", "text": "光を織る", "level": 2 },
+    {
+      "type": "text",
+      "paragraphs": [
+        "陽が傾くころ、アトリエの窓から差しこむ光は、琥珀のような色を帯びます。",
+        "この季節のコレクションは、その一瞬の色をとどめるために生まれました。"
+      ]
+    },
+    {
+      "type": "image",
+      "src": "look-01.jpg",
+      "alt": "琥珀色から深い茶色へと移るグラデーション",
+      "caption": "Look 01",
+      "width": "full"
+    },
+    {
+      "type": "button",
+      "label": "コレクションを見る",
+      "href": "/issues/2026-10/",
+      "variant": "secondary"
+    }
+  ]
+}

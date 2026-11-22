@@ -1,0 +1,46 @@
+/* デザイントークン。見た目の値はここで固定し、内容ファイルからは変えられない */
+:root {
+  /* 色 */
+  --color-bg: #0e0d0c;
+  --color-surface: #1a1816;
+  --color-text: #f3efe8;
+  --color-text-muted: #b9b2a6;
+  --color-accent: #c8a96a;
+  --color-accent-contrast: #0e0d0c;
+  --color-line: rgb(243 239 232 / 0.18);
+  --color-overlay: rgb(14 13 12 / 0.45);
+
+  /* 文字 */
+  --font-serif: 'Hiragino Mincho ProN', 'Yu Mincho', 'YuMincho', 'Noto Serif JP', serif;
+  --font-sans: 'Hiragino Sans', 'Yu Gothic', 'YuGothic', 'Noto Sans JP', sans-serif;
+  --text-xs: 0.75rem;
+  --text-sm: 0.875rem;
+  --text-md: 1rem;
+  --text-lg: clamp(1.25rem, 1.1rem + 0.8vw, 1.6rem);
+  --text-xl: clamp(1.75rem, 1.4rem + 1.8vw, 2.75rem);
+  --text-hero: clamp(2.25rem, 1.6rem + 4vw, 5rem);
+  --tracking-wide: 0.2em;
+  --leading-body: 1.9;
+
+  /* 余白（スマホ基準） */
+  --space-1: 0.5rem;
+  --space-2: 1rem;
+  --space-3: 1.5rem;
+  --space-4: 2.5rem;
+  --space-5: 4rem;
+  --space-6: 6rem;
+  --gutter: 1.25rem;
+  --content-width: 40rem;
+  --wide-width: 72rem;
+
+  /* 動き */
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --duration-slow: 1200ms;
+  --duration-base: 600ms;
+}
+
+@media (min-width: 768px) {
+  :root {
+    --gutter: 2.5rem;
+  }
+}

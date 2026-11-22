@@ -1,0 +1,97 @@
+# PR ごとのプレビュー（Cloudflare Workers Previews、2026-11-19時点で open beta）。
+# - 公開日時前の号も表示する（BUILD_MODE=preview）
+# - 同じリポジトリ内のブランチからの PR だけが対象。フォークからの PR には Secrets を渡さない
+# - pull_request_target は使わない
+# - プレビューURLは PR にコメントせず、このワークフローの実行結果（Summary）に出す
+name: Preview (PR)
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, closed]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: preview-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+env:
+  PREVIEW_NAME: pr-${{ github.event.pull_request.number }}
+  WRANGLER_SEND_METRICS: 'false'
+
+jobs:
+  deploy-preview:
+    name: プレビューを作成・更新
+    if: >-
+      github.event.action != 'closed' &&
+      github.event.pull_request.head.repo.full_name == github.repository &&
+      github.actor != 'dependabot[bot]'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    # Secrets は GitHub の Environment「preview」に置く（README 参照）
+    environment: preview
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: package.json
+          cache: npm
+
+      - run: npm ci --ignore-scripts
+
+      - name: プレビュービルド
+        run: |
+          npm run build:preview
+          node scripts/verify-dist.mjs preview
+
+      - name: Cloudflare にプレビューを作成
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          set -euo pipefail
+          npx wrangler preview --name "$PREVIEW_NAME" --json > preview.json
+          if url=$(jq -er '.preview.urls[0]' preview.json); then
+            {
+              echo "### プレビューURL"
+              echo
+              echo "$url"
+              echo
+              echo "公開日時前の号も表示されます。URL を知っていれば誰でも見られるので、扱いに注意してください。"
+            } >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "::error::プレビューURLを読み取れませんでした。wrangler の出力を確認してください"
+            cat preview.json
+            exit 1
+          fi
+
+  delete-preview:
+    name: プレビューを削除
+    if: >-
+      github.event.action == 'closed' &&
+      github.event.pull_request.head.repo.full_name == github.repository &&
+      github.actor != 'dependabot[bot]'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    environment: preview
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: package.json
+          cache: npm
+
+      - run: npm ci --ignore-scripts
+
+      - name: Cloudflare のプレビューを削除
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: npx wrangler preview delete --name "$PREVIEW_NAME" --skip-confirmation

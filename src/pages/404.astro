@@ -1,0 +1,25 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+---
+
+<BaseLayout title="ページが見つかりません">
+  <section class="not-found">
+    <h1>ページが見つかりません</h1>
+    <p><a href="/">トップへ戻る</a></p>
+  </section>
+</BaseLayout>
+
+<style>
+  .not-found {
+    display: grid;
+    place-content: center;
+    min-height: 100svh;
+    padding: var(--gutter);
+    text-align: center;
+  }
+  h1 {
+    font-family: var(--font-serif);
+    font-size: var(--text-xl);
+    font-weight: 400;
+  }
+</style>

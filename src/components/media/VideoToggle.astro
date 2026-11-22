@@ -1,0 +1,46 @@
+---
+// 背景動画の一時停止・再生ボタン。動画の再生が始まるまでは隠しておく（lazy-video.ts が表示する）
+---
+
+<button type="button" class="video-toggle" data-video-toggle aria-pressed="false" aria-label="背景動画を一時停止" hidden>
+  <svg class="video-toggle__icon video-toggle__icon--pause" viewBox="0 0 16 16" aria-hidden="true">
+    <rect x="4" y="3" width="2.5" height="10" fill="currentColor"></rect>
+    <rect x="9.5" y="3" width="2.5" height="10" fill="currentColor"></rect>
+  </svg>
+  <svg class="video-toggle__icon video-toggle__icon--play" viewBox="0 0 16 16" aria-hidden="true">
+    <path d="M5 3l8 5-8 5z" fill="currentColor"></path>
+  </svg>
+</button>
+
+<style>
+  .video-toggle {
+    position: absolute;
+    right: var(--gutter);
+    bottom: var(--space-3);
+    z-index: 3;
+    display: grid;
+    place-items: center;
+    width: 2.75rem;
+    height: 2.75rem;
+    padding: 0;
+    border: 1px solid var(--color-line);
+    border-radius: 50%;
+    background: var(--color-overlay);
+    color: var(--color-text);
+    cursor: pointer;
+  }
+  .video-toggle[hidden] {
+    display: none;
+  }
+  .video-toggle__icon {
+    width: 1rem;
+    height: 1rem;
+  }
+  .video-toggle__icon--play,
+  .video-toggle[aria-pressed='true'] .video-toggle__icon--pause {
+    display: none;
+  }
+  .video-toggle[aria-pressed='true'] .video-toggle__icon--play {
+    display: block;
+  }
+</style>

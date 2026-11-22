@@ -1,0 +1,46 @@
+---
+// 背景動画。最初は src を持たず、lazy-video.ts が画面に近づいたときに読み込む。
+// 親要素に data-lazy-video と、一時停止ボタン（VideoToggle）を置くこと。
+interface Props {
+  src: string;
+  class?: string;
+}
+
+const { src, class: className } = Astro.props;
+const type = src.endsWith('.webm') ? 'video/webm' : 'video/mp4';
+---
+
+<video
+  class:list={['bg-video', className]}
+  muted
+  playsinline
+  loop
+  preload="none"
+  aria-hidden="true"
+  tabindex="-1"
+  disablepictureinpicture
+>
+  <source data-src={src} type={type} />
+</video>
+
+<style>
+  .bg-video {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    opacity: 0;
+    transition: opacity var(--duration-slow) var(--ease-out);
+  }
+  /* 再生が始まってから表示する（それまではポスター画像が見えている） */
+  :global(.is-playing) > .bg-video,
+  :global(.is-playing) .bg-video {
+    opacity: 1;
+  }
+</style>
+
+<script>
+  import { setupLazyVideos } from '../../scripts/lazy-video';
+  setupLazyVideos();
+</script>

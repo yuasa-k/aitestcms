@@ -1,0 +1,56 @@
+# 予約公開の定時実行。
+# 15分ごとに、本番の /build-info.json と「今の時刻で出すべき号」を比べ、
+# 違うとき（＝前回の本番デプロイ以降に公開日時が来た号があるとき）だけ deploy.yml を呼ぶ。
+# 違わなければ npm install もせずに数秒で終わる。
+#
+# 注意（GitHub の仕様、2026-11-19確認）
+# - 定時実行は混雑時に遅れたり、実行されなかったりする。毎時0分は特に混むので避けている
+# - Public リポジトリでは、60日間リポジトリに動きがないと定時実行が自動で止まる
+name: Scheduled publish
+
+on:
+  schedule:
+    - cron: '7,22,37,52 * * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: scheduled-publish
+  cancel-in-progress: false
+
+jobs:
+  check:
+    name: 公開日時が来た号があるか確認
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      deploy: ${{ steps.check.outputs.deploy }}
+    steps:
+      # 判定に必要なファイルだけを取得する（media/ などは取らない）
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+          sparse-checkout: |
+            src/content/issues
+            src/lib
+            scripts
+
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: package.json
+
+      - id: check
+        run: node scripts/check-schedule.mjs
+        env:
+          PRODUCTION_URL: ${{ vars.PRODUCTION_URL }}
+
+  deploy:
+    name: 本番を更新
+    needs: check
+    if: needs.check.outputs.deploy == 'true'
+    permissions:
+      contents: read
+    uses: ./.github/workflows/deploy.yml
+    secrets: inherit

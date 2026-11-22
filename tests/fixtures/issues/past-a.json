@@ -1,0 +1,16 @@
+{
+  "id": "past-a",
+  "title": "テスト用・公開済みA",
+  "description": "ビルドのテスト用の号（公開済み・古いほう）",
+  "publishAt": "2000-01-01T10:00:00+09:00",
+  "blocks": [
+    {
+      "type": "hero",
+      "video": "hero.mp4",
+      "poster": "past-a-hero.jpg",
+      "posterAlt": "テスト用の画像",
+      "title": "MARKER-PAST-A"
+    },
+    { "type": "text", "paragraphs": ["公開済みAの本文"] }
+  ]
+}

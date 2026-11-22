@@ -1,0 +1,50 @@
+---
+// アニメーション領域。中のブロックを、画面に入ったときに順番に表示する。
+// JSが動かない環境や、視差効果を減らす設定のときは、最初から表示されたまま。
+interface Props {
+  effect: 'fade-up' | 'fade-in' | 'slide-left' | 'slide-right';
+}
+
+const { effect } = Astro.props;
+---
+
+<div class="reveal" data-reveal data-effect={effect}>
+  <slot />
+</div>
+
+<style>
+  .reveal {
+    /* 横から入る演出で、ページが横にはみ出さないようにする */
+    overflow-x: clip;
+  }
+  .reveal[data-effect='fade-up'] {
+    --reveal-from: translate3d(0, 2rem, 0);
+  }
+  .reveal[data-effect='fade-in'] {
+    --reveal-from: none;
+  }
+  /* slide-left：右から左へ入る／slide-right：左から右へ入る */
+  .reveal[data-effect='slide-left'] {
+    --reveal-from: translate3d(3rem, 0, 0);
+  }
+  .reveal[data-effect='slide-right'] {
+    --reveal-from: translate3d(-3rem, 0, 0);
+  }
+  .reveal[data-reveal-armed] > :global(*) {
+    opacity: 0;
+    transform: var(--reveal-from);
+    transition:
+      opacity var(--duration-slow) var(--ease-out),
+      transform var(--duration-slow) var(--ease-out);
+    transition-delay: calc(var(--reveal-index, 0) * 150ms);
+  }
+  .reveal[data-reveal-armed].is-visible > :global(*) {
+    opacity: 1;
+    transform: none;
+  }
+</style>
+
+<script>
+  import { setupReveal } from '../../scripts/reveal';
+  setupReveal();
+</script>
