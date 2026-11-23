@@ -54,8 +54,10 @@ jobs:
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
         run: |
           set -euo pipefail
-          npx wrangler preview --name "$PREVIEW_NAME" --json > preview.json
-          if url=$(jq -er '.preview.urls[0]' preview.json); then
+          npx wrangler preview --name "$PREVIEW_NAME" --json > preview-raw.txt
+          # wrangler は進み具合の表示と JSON を同じ出力に書くため、行頭の「{」から最後までを JSON として取り出す
+          sed -n '/^{$/,$p' preview-raw.txt > preview.json
+          if url=$(jq -er '.preview.urls[0]' preview.json 2>/dev/null); then
             {
               echo "### プレビューURL"
               echo
@@ -64,8 +66,8 @@ jobs:
               echo "公開日時前の号も表示されます。URL を知っていれば誰でも見られるので、扱いに注意してください。"
             } >> "$GITHUB_STEP_SUMMARY"
           else
-            echo "::error::プレビューURLを読み取れませんでした。wrangler の出力を確認してください"
-            cat preview.json
+            # 出力にはメールアドレスなどが含まれるため、ログには出さない
+            echo "::error::プレビューURLを読み取れませんでした（wrangler の出力の形が変わった可能性があります。出力はログに出していません）"
             exit 1
           fi
 
